@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String         @id @default(uuid())
+  name             String
+  email            String         @unique
+  password         String
+  createdAt        DateTime       @default(now())
+  Transaction      Transaction[]
+  Category         Category[]
+  AlertSettings    AlertSettings?
+  sharedWithOthers SharedAccess[] @relation("Owner")
+  sharedWithMe     SharedAccess[] @relation("SharedUser")
+}
+
+model Category {
+  id           String          @id @default(uuid())
+  name         String          @unique
+  type         TransactionType
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+}
+
+model Transaction {
+  id         String          @id @default(uuid())
+  title      String
+  amount     Decimal
+  type       TransactionType
+  userId     String
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId String?
+  category   Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt  DateTime        @default(now())
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model AlertSettings {
+  id           String  @id @default(uuid())
+  userId       String  @unique
+  monthlyLimit Decimal
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SharedAccess {
+  id         String @id @default(uuid())
+  ownerId    String @map("owner_id")
+  sharedWith String @map("shared_with")
+  permission String
+  status     String @default("PENDING")
+
+  owner      User @relation("Owner", fields: [ownerId], references: [id])
+  sharedUser User @relation("SharedUser", fields: [sharedWith], references: [id])
+
+  createdAt DateTime @default(now())
+}
