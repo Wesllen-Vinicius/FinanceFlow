@@ -23,10 +23,10 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-assignment': 'off', // ✅ Desativa erro de tipagem insegura
-      '@typescript-eslint/no-unsafe-call': 'off', // ✅ Desativa erro ao chamar funções tipadas indiretamente
-      '@typescript-eslint/no-unsafe-member-access': 'off', // ✅ Desativa erro ao acessar propriedades de objetos tipados
-      '@typescript-eslint/no-unsafe-return': 'off', // ✅ Permite retornar valores sem erro do ESLint
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
 );

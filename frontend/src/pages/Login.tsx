@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 
 const Login = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -15,7 +16,10 @@ const Login = () => {
     setError("");
 
     try {
+      console.log("Tentando logar com:", email, password);
       await login(email, password);
+      console.log("Login bem-sucedido! Redirecionando...");
+      navigate("/dashboard");
     } catch (err) {
       console.error("Erro ao fazer login:", err);
       setError("Credenciais inválidas. Tente novamente.");
@@ -44,7 +48,6 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-
           <Input
             label="Senha"
             type="password"

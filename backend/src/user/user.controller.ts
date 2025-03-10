@@ -40,6 +40,7 @@ export class UserController {
     try {
       return await this.userService.create(body);
     } catch (error) {
+      console.error('Erro ao criar usuário:', error);
       if (error.code === 'P2002') {
         throw new ConflictException('E-mail já está em uso');
       }

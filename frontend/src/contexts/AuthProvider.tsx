@@ -17,17 +17,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const loadUser = async () => {
       const token = localStorage.getItem("token");
       if (token) {
+        console.log("Token encontrado no LocalStorage:", token);
         const decoded = parseJwt(token);
+        console.log("Token decodificado:", decoded);
+
         if (decoded?.userId) {
           try {
             const fetchedUser = await getUserById(decoded.userId);
+            console.log("Usuário carregado:", fetchedUser);
             setUser(fetchedUser);
           } catch {
+            console.warn("Erro ao carregar usuário, limpando token...");
             localStorage.removeItem("token");
             setUser(null);
             navigate("/login");
           }
         } else {
+          console.warn("Token inválido, removendo...");
           localStorage.removeItem("token");
           navigate("/login");
         }
@@ -38,14 +44,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [navigate]);
 
   const login = async (email: string, password: string) => {
-    const { token } = await loginService(email, password);
-    localStorage.setItem("token", token);
-    const decoded = parseJwt(token);
-    if (decoded?.userId) {
-      const fetchedUser = await getUserById(decoded.userId);
+    const { access_token } = await loginService(email, password);
+    console.log("Token recebido do backend:", access_token);
+
+    localStorage.setItem("token", access_token);
+
+    const decoded = parseJwt(access_token);
+    console.log("Token decodificado:", decoded);
+
+    const userId = decoded?.userId || decoded?.sub;
+    if (userId) {
+      const fetchedUser = await getUserById(userId);
+      console.log("Usuário autenticado:", fetchedUser);
       setUser(fetchedUser);
       navigate("/dashboard");
     } else {
+      console.error("Erro: Token inválido.");
       throw new Error("Token inválido");
     }
   };

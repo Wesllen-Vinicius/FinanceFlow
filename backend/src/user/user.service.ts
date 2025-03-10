@@ -3,6 +3,7 @@ import {
   ConflictException,
   NotFoundException,
   BadRequestException,
+  HttpException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from '@prisma/client';
@@ -43,7 +44,13 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new BadRequestException('Erro ao criar usuário.');
+      console.error('Erro original:', error);
+
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new BadRequestException(error.message || 'Erro ao criar usuário.');
     }
   }
 

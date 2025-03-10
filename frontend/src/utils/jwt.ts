@@ -1,8 +1,19 @@
 export const parseJwt = (token: string) => {
+  if (!token) return null;
+
   try {
-    return JSON.parse(atob(token.split(".")[1]));
-  } catch (e) {
-    console.error("Erro ao fazer login:", e);
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
+        .join("")
+    );
+
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Erro ao decodificar JWT:", error);
     return null;
   }
 };

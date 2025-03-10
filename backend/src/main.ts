@@ -11,7 +11,7 @@ async function bootstrap() {
 
     app.useGlobalFilters(new HttpExceptionFilter());
 
-    // app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+    app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 
     await app.listen(port);
     console.log(`🚀 Server running on http://localhost:${port}`);
