@@ -10,18 +10,21 @@ const FinancialSummary = () => {
     despesas: 0,
   });
 
+  const fetchSummary = async () => {
+    try {
+      const response = await api.get("/transactions/dashboard");
+      setSummary({
+        saldo: Number(response.data.saldo) || 0,
+        receitas: Number(response.data.receitas) || 0,
+        despesas: Number(response.data.despesas) || 0,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar resumo financeiro:", error);
+    }
+  };
+
   useEffect(() => {
-    api
-      .get("/transactions/dashboard")
-      .then((response) => {
-        // 🔥 Garante que os valores sejam números
-        setSummary({
-          saldo: Number(response.data.saldo) || 0,
-          receitas: Number(response.data.receitas) || 0,
-          despesas: Number(response.data.despesas) || 0,
-        });
-      })
-      .catch((error) => console.error(error));
+    fetchSummary();
   }, []);
 
   return (

@@ -28,24 +28,30 @@ const FinanceCharts = () => {
   const [categories, setCategories] = useState<FormattedCategory[]>([]);
   const [saldoHistorico, setSaldoHistorico] = useState<SaldoHistorico[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [categoriesData, transactionsData] = await Promise.all([
-          getCategories(),
-          getTransactions(),
-        ]);
+  const fetchData = async () => {
+    try {
+      const [categoriesData, transactionsData] = await Promise.all([
+        getCategories(),
+        getTransactions(),
+      ]);
 
-        setCategories(
-          categoriesData.map((cat) => ({
-            name: cat.name,
-            value: cat.totalSpent || 0,
-            color: cat.color || "#8884d8",
-          }))
-        );
+      // Atualiza categorias com valores gastos
+      setCategories(
+        categoriesData.map((cat) => ({
+          name: cat.name,
+          value: cat.totalSpent || 0,
+          color: cat.color || "#8884d8",
+        }))
+      );
 
-        let saldoAcumulado = 0;
-        const saldoData: SaldoHistorico[] = transactionsData.map((t) => {
+      // Processar a evolução do saldo por mês
+      let saldoAcumulado = 0;
+      const saldoData: SaldoHistorico[] = transactionsData
+        .sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        ) // Ordena as transações por data
+        .map((t) => {
           saldoAcumulado += t.type === "INCOME" ? t.amount : -t.amount;
           return {
             mes: new Date(t.createdAt).toLocaleString("default", {
@@ -55,17 +61,20 @@ const FinanceCharts = () => {
           };
         });
 
-        setSaldoHistorico(saldoData);
-      } catch (error) {
-        console.error("Erro ao buscar dados financeiros:", error);
-      }
-    };
+      setSaldoHistorico(saldoData);
+    } catch (error) {
+      console.error("Erro ao buscar dados financeiros:", error);
+    }
+  };
 
+  // Atualiza sempre que houver mudanças
+  useEffect(() => {
     fetchData();
   }, []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+      {/* Gráfico de Despesas por Categoria */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl">
         <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
           Despesas por Categoria
@@ -88,6 +97,7 @@ const FinanceCharts = () => {
         </ResponsiveContainer>
       </div>
 
+      {/* Gráfico de Evolução do Saldo */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl">
         <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
           Evolução do Saldo
